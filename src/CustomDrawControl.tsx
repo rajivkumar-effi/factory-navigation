@@ -6,11 +6,7 @@ import { LeafletEvent } from 'leaflet';
 import "leaflet-draw";
 
 // TypeScript declaration to allow L.Draw usage
-declare global {
-  namespace L {
-    const Draw: any;
-  }
-}
+// (Removed redundant declaration of L.Draw to avoid redeclaration error)
 
 // @ts-ignore: leaflet-draw augments L.Control at runtime
 const CustomDrawControl = ({ onShapeDrawn }) => {

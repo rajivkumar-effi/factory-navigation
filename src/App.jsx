@@ -7,8 +7,8 @@ function App() {
   return (
     <>
       {/* <LeafletDrawControl/> */}
-      <StorePathfinderMap/>
-      {/* <IndoorMap/> */}
+      {/* <StorePathfinderMap/> */}
+      <IndoorMap/>
     </>
   )
 }

@@ -2,10 +2,17 @@ import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 import * as L from 'leaflet';
 import { LeafletEvent } from 'leaflet';
-import { DrawEvents } from "leaflet";
 
 import "leaflet-draw";
 
+// TypeScript declaration to allow L.Draw usage
+declare global {
+  namespace L {
+    const Draw: any;
+  }
+}
+
+// @ts-ignore: leaflet-draw augments L.Control at runtime
 const CustomDrawControl = ({ onShapeDrawn }) => {
     const map = useMap();
 
@@ -13,7 +20,17 @@ const CustomDrawControl = ({ onShapeDrawn }) => {
         const drawnItems = new L.FeatureGroup();
         map.addLayer(drawnItems);
 
-        const drawControl = new L.Control.Draw({
+        // Patch: Disable area tooltip for rectangles to avoid leaflet-draw bug
+        if ((L as any).Draw && (L as any).Draw.Rectangle) {
+            (L as any).Draw.Rectangle.prototype._getTooltipText = function () {
+                return {
+                    text: 'Click and drag to draw rectangle.',
+                };
+            };
+        }
+
+        // @ts-ignore: Draw is added by leaflet-draw at runtime
+        const drawControl = new (L.Control as any).Draw({
             draw: {
                 polygon: false,
                 rectangle: {
@@ -34,7 +51,7 @@ const CustomDrawControl = ({ onShapeDrawn }) => {
         map.addControl(drawControl);
 
         map.on(L.Draw.Event.CREATED, (e: LeafletEvent) => {
-            const event = e as DrawEvents;
+            const event = e as any;
             const { layer, layerType } = event;
             drawnItems.addLayer(layer);
             const latlngs = layer.getLatLngs?.() ?? null;
@@ -43,7 +60,6 @@ const CustomDrawControl = ({ onShapeDrawn }) => {
                 onShapeDrawn(latlngs, layerType);
             }
         });
-
         return () => {
             map.removeControl(drawControl);
             map.removeLayer(drawnItems);

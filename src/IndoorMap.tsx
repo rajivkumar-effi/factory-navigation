@@ -1,9 +1,5 @@
 import React, { useState } from "react";
-import {
-  MapContainer,
-  ImageOverlay,
-  Polygon,
-} from "react-leaflet";
+import { MapContainer, ImageOverlay, Polygon, Rectangle, } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
@@ -16,7 +12,8 @@ const IndoorMap = () => {
   const [walls, setWalls] = useState<any>([]);
 
   const handleShapeCreated = (latlngs: any, type: any) => {
-    setWalls((prev) => [...prev, { latlngs, type }]);
+    console.log("Shape created:", { latlngs, type });
+    setWalls((prev: any) => [...prev, { latlngs, type }]);
   };
 
 
@@ -39,13 +36,21 @@ const IndoorMap = () => {
 
       <CustomDrawControl onShapeDrawn={handleShapeCreated} />
 
-      {walls.map((wall, idx) => (
-        <Polygon
-          key={idx}
-          positions={wall}
-          pathOptions={{ color: "black", fillOpacity: 0.5 }}
-        />
-      ))}
+      {walls.map((wall: any, idx: number) =>
+        wall.type === "rectangle" ? (
+          <Rectangle
+            key={idx}
+            bounds={wall.latlngs}
+            pathOptions={{ color: "black", fillOpacity: 0.5 }}
+          />
+        ) : (
+          <Polygon
+            key={idx}
+            positions={wall.latlngs}
+            pathOptions={{ color: "black", fillOpacity: 0.5 }}
+          />
+        )
+      )}
     </MapContainer>
   );
 };

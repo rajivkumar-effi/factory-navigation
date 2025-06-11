@@ -9,11 +9,12 @@ import "leaflet-draw";
 // (Removed redundant declaration of L.Draw to avoid redeclaration error)
 
 // @ts-ignore: leaflet-draw augments L.Control at runtime
-const CustomDrawControl = ({ onShapeDrawn }) => {
+const drawnItems = new L.FeatureGroup(); // Move outside component to persist
+
+const CustomDrawControl = ({ onShapeDrawn, mode = "grid" }) => {
     const map = useMap();
 
     useEffect(() => {
-        const drawnItems = new L.FeatureGroup();
         map.addLayer(drawnItems);
 
         // Patch: Disable area tooltip for rectangles to avoid leaflet-draw bug
@@ -25,12 +26,16 @@ const CustomDrawControl = ({ onShapeDrawn }) => {
             };
         }
 
+        // Rectangle color based on mode
+        const rectColor = mode === "product" ? "#A2E458" : "#222";
+        // Only allow edit/delete in product mode
+        const editOptions = { featureGroup: drawnItems };
         // @ts-ignore: Draw is added by leaflet-draw at runtime
         const drawControl = new (L.Control as any).Draw({
             draw: {
                 polygon: false,
                 rectangle: {
-                    shapeOptions: { color: "#007bff" },
+                    shapeOptions: { color: rectColor },
                 },
                 circle: false,
                 marker: false,
@@ -39,9 +44,7 @@ const CustomDrawControl = ({ onShapeDrawn }) => {
                 },
                 circlemarker: false,
             },
-            edit: {
-                featureGroup: drawnItems,
-            },
+            edit: editOptions,
         });
 
         map.addControl(drawControl);
@@ -60,7 +63,7 @@ const CustomDrawControl = ({ onShapeDrawn }) => {
             map.removeControl(drawControl);
             map.removeLayer(drawnItems);
         };
-    }, [map, onShapeDrawn]);
+    }, [map, onShapeDrawn, mode]);
 
     return null;
 };

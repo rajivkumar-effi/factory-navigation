@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import IndoorMap from '../IndoorMap';
 import StorePathfinderMap from '../StorePathFinder';
 import { useState } from 'react';
+import PathfinderMap from '../PathFinder';
 
 function GridStateWrapper({ children }) {
   const [dynamicGrid, setDynamicGrid] = useState(null);
@@ -18,10 +19,18 @@ const MyRoutes = createBrowserRouter([
     ),
   },
   {
-    path: '/pathfinder',
+    path: '/storepathfinder',
     element: (
       <GridStateWrapper>
         {({ dynamicGrid }) => <StorePathfinderMap dynamicGrid={dynamicGrid} />}
+      </GridStateWrapper>
+    ),
+  },
+  {
+    path: '/pathfinder',
+    element: (
+      <GridStateWrapper>
+        {({ dynamicGrid }) => <PathfinderMap dynamicGrid={dynamicGrid} />}
       </GridStateWrapper>
     ),
   },
